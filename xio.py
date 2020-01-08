@@ -164,9 +164,9 @@ def user():
 	usr = input(str('你：'))
 	if usr == 'xio' or usr == 'x':
 		xio_u()
-	elif usr == '摸摸' or usr == 'momo':
+	elif usr == '摸摸' or usr == 'm':
 		momo_u()
-	elif usr == '三砍' or usr == 'sa':
+	elif usr == '三砍' or usr == 's':
 		sankan_u()
 	elif usr == '雷扒' or usr == 'l':
 		leiba_u()
