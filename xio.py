@@ -4,19 +4,32 @@ import random
 import time 
 import sys
 
-#初始化游戏
+'''初始化游戏'''
+#全局初始化
+xios = [0,0]
+tianbos = [0,0]
+#每轮初始化
 real_c = ''
 real_u = ''
 attack_c = 0
 defence_c = 0
 attack_u = 0
 defence_u = 0	
-xios = [0,0]
-tianbos = [0,0]
-spec_c = 10
-spec_u = 10
+fen_u = 0 
+fen_c = 0
+def init():
+	global real_c, real_u, attack_c, attack_u, defence_c, defence_u, fen_c, fen_u
+	real_c = ''
+	real_u = ''
+	attack_c = 0
+	defence_c = 0
+	attack_u = 0
+	defence_u = 0	
+	fen_u = 0 
+	fen_c = 0
 #设定玩家可用的所有招式
-usable_u= ['xio','摸摸','雷扒','三砍','五合体','虎合体','地波','天波','超防']
+usable_u = ['xio','摸摸','雷扒','三砍','五合体','虎合体','地波','天波','超防']
+usable_c = ['xio','摸摸','雷扒','三砍','五合体','虎合体','地波','天波','超防']
 #设定电脑初始可用招式
 usable_a = ['摸摸']
 usable_d = ['地波','天波']
@@ -94,7 +107,7 @@ def wuhe(pos):
 		xios[0] = xios[0]-5
 	else:
 		attack_u = 5
-		xios[1] = xios[1]-5
+		#xios[1] = xios[1]-5
 		
 def huhe(pos):
 	global attack_u, attack_c, xios
@@ -115,15 +128,29 @@ def Start():
 		xios[0] = xios[0]+1
 		turn()
 	else:
-		Sstart()
+		Start()
 
 def over():
 	end = input('输入任意键退出游戏\n')
-	sys.exit
+	sys.exit()
+	
+def c_fen():
+	usable_c.remove(real_c)
+	print('电脑的'+real_c+'被粉了')
+	turn()
 
+def u_fen():
+	print('你的'+real_u+'被粉了')
+	if real_u not in usable_u:
+		print('你的这个技能被粉过,你输了')
+		over()
+	else:
+		usable_c.remove(real_c)
+		turn()
+	 	
 def cpu():
 	#控制不爆死
-	global usable_a, usable_d, attack_c, defence_c, state
+	global usable_a, usable_d, attack_c, defence_c, state, real_c, real_u
 	if xios[0] < 0.3:
 		usable_a = ['xio']
 		usable_d = ['地波','天波']
@@ -148,40 +175,59 @@ def cpu():
 		pass
 	#出招式
 	go = random.choice(state)
-	if go == 'usable_a' and usable_a is not None:
+	print(go)
+	if go == 'usable_a' :
 		get = random.choice(usable_a)
-		if get == 'xio' or get == 'x':
-			xio(0)
-			print('电脑:xio')
-		elif get == '雷扒' :
-			leiba(0)
-			print('电脑:雷扒')
-		elif get == '摸摸' :
-			momo(0)
-			print('电脑:摸摸')
-		elif get == '三砍' :
-			sankan(0)
-			print('电脑:三砍')
-		elif get == '五合体' :
-			wuhe(0)
-			print('电脑:五合体')
-		elif get == '虎合体' :
-			huhe(0)
-			print('电脑:虎合体')
+		if get in  usable_c:
+			if get == 'xio' :
+				xio(0)
+				print('电脑:xio')
+				real_c = 'xio'
+			elif get == '雷扒' :
+				leiba(0)
+				print('电脑:雷扒')
+				real_c = '雷扒'
+			elif get == '摸摸' :
+				momo(0)
+				print('电脑:摸摸')
+				real_c = '摸摸'
+			elif get == '三砍' :
+				sankan(0)
+				print('电脑:三砍')
+				real_c = '三砍'
+			elif get == '五合体' :
+				wuhe(0)
+				print('电脑:五合体')
+				real_c = '五合体'
+			elif get == '虎合体' :
+				huhe(0)
+				print('电脑:虎合体')
+				real_c = '虎合体'
+		else:
+			cpu()
 	elif go == 'usable_d':
-		get = random.choice(usable_d)	
-		if get == '天波':
-			tianbo(0)
-			print('电脑:天波')
-		if get == '地波':
-			dibo(0)
-			print('电脑:地波')
-		if get == '超防':
-			chaofang(0)
-			print('电脑:超防')
+		get = random.choice(usable_d)
+		if get in  usable_c:
+			if get == '天波':
+				tianbo(0)
+				print('电脑:天波')
+				real_c = '天波'
+			elif get == '地波':
+				dibo(0)
+				print('电脑:地波')
+				real_c = '地波'
+			elif get == '超防':
+				chaofang(0)
+				print('电脑:超防')
+				real_c = '超防'
+		else:
+			cpu()
 	elif go == 'xio':
 		xio(0)
 		print('电脑:xio')
+		real_c = 'xio'
+	
+
 
 def user():
 	global attack_c, attack, defence_c, defence, real_c, real_u
@@ -217,13 +263,16 @@ def user():
 	else:
 		print('无法判断输入，请重新输入')
 		turn()
+	
 
 def turn():
-	global attack_c, attack_u, defence_c, defence_u, real_c, real_u, usable_u
+	global attack_c, attack_u, defence_c, defence_u, real_c, real_u, usable_all
+	#切入初始化
+	init()
 	#调用用户出招式
 	user()
 	#调用电脑给出招式
-	cpu()	
+	cpu()		
 	'''判断'''
 	#全转浮点数
 	attack_c = float(attack_c)
@@ -231,29 +280,27 @@ def turn():
 	defence_c = float(defence_c)
 	defence_u = float(defence_u)
 	#判断输赢
-	if xios[1] < 0 or real_u not in usable_u:
-		print('你爆死')
-		over()
-	elif attack_u > attack_c and attack_c != 0  or attack_u > defence_c and defence_c != 0 or real_u == '雷扒' and real_c == '天波':
-		print('你赢了')
-		over()
-	elif attack_c > attack_u and attack_u != 0 or attack_c > defence_u and defence_u != 0 or real_u == '天波' and real_c == '雷扒':
-		print('你输了')
-		over()
+	if real_c == '三砍' and real_u == '五合体' or real_c == '五合体' and real_u == '虎合体' or real_c == '超防' and real_u == '虎合体':
+		c_fen()
+	elif real_u == '三砍' and real_c == '五合体' or real_u == '五合体' and real_c == '虎合体' or real_u == '超防' and real_c == '虎合体':
+		u_fen()
 	else:
-		#初始化
-		real_c = ''
-		real_u = ''
-		attack_c = 0
-		defence_c = 0
-		attack_u = 0
-		defence_u = 0
-		#显示比分
-		print(xios)
-		#递归下一轮
-		turn()
-		
-print('版本号:1.1.2')
+		if xios[1] < 0 or real_u not in usable_u:
+			print('你爆死')
+			over()
+		elif attack_u > attack_c and attack_c != 0  or attack_u > defence_c and defence_c != 0 or real_u == '雷扒' and real_c == '天波':
+			print('你赢了')
+			over()
+		elif attack_c > attack_u and attack_u != 0 or attack_c > defence_u and defence_u != 0 or real_u == '天波' and real_c == '雷扒':
+			print('你输了')
+			over()
+		else:
+			#显示比分
+			print(xios)
+			#下一轮
+			turn()
+
+print('版本号:1.1.3.5')
 Start()
 
 	
